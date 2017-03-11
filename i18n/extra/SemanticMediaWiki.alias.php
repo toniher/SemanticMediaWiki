@@ -2,7 +2,6 @@
 /**
  * Aliases for special pages
  *
- * @author أحمد غربية <ahmad@arabdigitalexpression.org>
  * @file
  * @ingroup Extensions
  * @ingroup SMWLanguage
@@ -22,6 +21,7 @@ $specialPageAliases['en'] = array(
 	'SMWAdmin' => array( 'SemanticMediaWiki', 'SMWAdmin' ),
 	'SearchByProperty' => array( 'SearchByProperty' ),
 	'ProcessingErrorList' => array( 'ProcessingErrorList' ),
+	'PropertyLabelSimilarity' => array( 'PropertyLabelSimilarity' ),
 	'SemanticStatistics' => array( 'SemanticStatistics' ),
 	'Types' => array( 'Types' ),
 	'URIResolver' => array( 'URIResolver' ),
@@ -150,8 +150,10 @@ $specialPageAliases['de'] = array(
 	'PageProperty' => array( 'Seitenattribut' ),
 	'Properties' => array( 'Attribute' ),
 	'Concepts' => array( 'Konzepte' ),
-	'SMWAdmin' => array( 'SMW-Administration', 'SMW-Einrichtung' ),
+	'SMWAdmin' => array( 'SemanticMediaWiki', 'SMW-Administration', 'SMW-Einrichtung' ),
 	'SearchByProperty' => array( 'Suche_mittels_Attribut' ),
+	'ProcessingErrorList' => array( 'Liste_der_Verarbeitungsfehler' ),
+	'PropertyLabelSimilarity' => array( 'Ähnliche_Attributbezeichnungen' ),
 	'SemanticStatistics' => array( 'Semantische_Statistik' ),
 	'Types' => array( 'Datentypen' ),
 	'URIResolver' => array( 'URI-Auflöser' ),

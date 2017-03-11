@@ -4,7 +4,7 @@ namespace SMW;
 
 use Title;
 use User;
-use SMW\MediaWiki\PageProtectionManager;
+use SMW\Protection\EditProtectionValidator;
 
 /**
  * @license GNU GPL v2+
@@ -68,7 +68,7 @@ class PermissionPthValidator {
 	 */
 	public function checkUserPermissionOn( Title &$title, User $user, $action, &$errors ) {
 
-		if ( $action !== 'edit' && $action !== 'delete' && $action !== 'move' ) {
+		if ( $action !== 'edit' && $action !== 'delete' && $action !== 'move' && $action !== 'upload' ) {
 			return true;
 		}
 
@@ -106,7 +106,7 @@ class PermissionPthValidator {
 			return true;
 		}
 
-		$errors[] = array( 'smw-pageedit-protection', $this->editProtectionRight );
+		$errors[] = array( 'smw-edit-protection', $this->editProtectionRight );
 
 		return false;
 	}

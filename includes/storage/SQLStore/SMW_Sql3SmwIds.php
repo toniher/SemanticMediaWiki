@@ -4,6 +4,7 @@ use SMW\ApplicationFactory;
 use SMW\DIProperty;
 use SMW\DIWikiPage;
 use SMW\HashBuilder;
+use SMW\RequestOptions;
 use SMW\SQLStore\IdToDataItemMatchFinder;
 use SMW\SQLStore\PropertyStatisticsTable;
 use SMW\SQLStore\RedirectInfoStore;
@@ -210,7 +211,7 @@ class SMWSql3SmwIds {
 		'_ASKFO' =>  35,
 		'_ASKSI' =>  36,
 		'_ASKDE' =>  37,
-//		'_ASKDU' =>  38,
+		'_ASKPA' =>  38,
 		'_ASKSC' =>  39,
 		'_LCODE' =>  40,
 		'_TEXT'  =>  41,
@@ -233,7 +234,7 @@ class SMWSql3SmwIds {
 			$this->store->getConnection( 'mw.db' )
 		);
 
-		$this->intermediaryIdCache = ApplicationFactory::getInstance()->getInMemoryPoolCache()->getPoolCacheFor( self::POOLCACHE_ID );
+		$this->intermediaryIdCache = ApplicationFactory::getInstance()->getInMemoryPoolCache()->getPoolCacheById( self::POOLCACHE_ID );
 	}
 
 	/**
@@ -499,7 +500,7 @@ class SMWSql3SmwIds {
 	 *
 	 * @param boolean
 	 */
-	public function hasIDFor( DIWikiPage $subject ) {
+	public function exists( DIWikiPage $subject ) {
 		return $this->getIDFor( $subject ) > 0;
 	}
 
@@ -989,11 +990,12 @@ class SMWSql3SmwIds {
 	 * @since 2.3
 	 *
 	 * @param integer $id
+	 * @param RequestOptions|null $requestOptions
 	 *
 	 * @return string[]
 	 */
-	public function getDataItemPoolHashListFor( array $idlist ) {
-		return $this->idToDataItemMatchFinder->getDataItemPoolHashListFor( $idlist );
+	public function getDataItemPoolHashListFor( array $idlist, RequestOptions $requestOptions = null ) {
+		return $this->idToDataItemMatchFinder->getDataItemsFromList( $idlist, $requestOptions );
 	}
 
 	/**

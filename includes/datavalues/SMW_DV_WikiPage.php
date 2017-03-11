@@ -74,6 +74,11 @@ class SMWWikiPageValue extends SMWDataValue {
 	 */
 	protected $linkAttributes = array();
 
+	/**
+	 * @var array
+	 */
+	protected $queryParameters = array();
+
 	public function __construct( $typeid ) {
 		parent::__construct( $typeid );
 		switch ( $typeid ) {
@@ -202,6 +207,15 @@ class SMWWikiPageValue extends SMWDataValue {
 	}
 
 	/**
+	 * @since 2.5
+	 *
+	 * @param array $queryParameters
+	 */
+	public function setQueryParameters( array $queryParameters ) {
+		$this->queryParameters = $queryParameters;
+	}
+
+	/**
 	 * Display the value on a wiki page. This is used to display the value
 	 * in the place where it was annotated on a wiki page. The desired
 	 * behavior is that the display in this case looks as if no property
@@ -299,7 +313,8 @@ class SMWWikiPageValue extends SMWDataValue {
 		return $linker->link(
 			$this->getTitle(),
 			$caption,
-			$this->linkAttributes
+			$this->linkAttributes,
+			$this->queryParameters
 		);
 	}
 
@@ -366,8 +381,8 @@ class SMWWikiPageValue extends SMWDataValue {
 			return $this->getErrorText();
 		}
 
-		if ( $linker === null|| $linker === false || $this->m_outformat == '-' ) {
-			return  \Sanitizer::removeHTMLtags( $this->getWikiValue() );
+		if ( $linker === null || $linker === false || $this->m_outformat == '-' ) {
+			return \Sanitizer::removeHTMLtags( $this->getWikiValue() );
 		} elseif ( $this->getNamespace() == NS_MEDIA ) { // this extra case is really needed
 			return $linker->makeMediaLinkObj( $this->getTitle(),
 				 \Sanitizer::removeHTMLtags( $this->getLongCaptionText() ) );
@@ -377,7 +392,8 @@ class SMWWikiPageValue extends SMWDataValue {
 		return $linker->link(
 			$this->getTitle(),
 			 \Sanitizer::removeHTMLtags( $this->getLongCaptionText() ),
-			$this->linkAttributes
+			$this->linkAttributes,
+			$this->queryParameters
 		);
 	}
 

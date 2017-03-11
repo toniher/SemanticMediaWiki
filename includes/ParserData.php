@@ -21,6 +21,16 @@ use Title;
 class ParserData {
 
 	/**
+	 * Identifies the extension data
+	 */
+	const DATA_ID = 'smwdata';
+
+	/**
+	 * Indicates that no #ask dependency tracking should occur
+	 */
+	const NO_QUERY_DEP_TRACE = 'no.query.dep.trace';
+
+	/**
 	 * @var Title
 	 */
 	private $title;
@@ -41,9 +51,21 @@ class ParserData {
 	private $errors = array();
 
 	/**
-	 * @var $enabledUpdateJobs
+	 * @var $isEnabledWithUpdateJob
 	 */
-	private $enabledUpdateJobs = true;
+	private $isEnabledWithUpdateJob = true;
+
+	/**
+	 * Identifies the origin of a request.
+	 *
+	 * @var string
+	 */
+	private $origin = '';
+
+	/**
+	 * @var Options
+	 */
+	private $options = null;
 
 	/**
 	 * @since 1.9
@@ -56,6 +78,46 @@ class ParserData {
 		$this->parserOutput = $parserOutput;
 
 		$this->initSemanticData();
+	}
+
+	/**
+	 * @since 2.5
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed
+	 */
+	public function getOption( $key ) {
+
+		if ( !$this->options instanceof Options ) {
+			$this->options = new Options();
+		}
+
+		return $this->options->has( $key ) ? $this->options->get( $key ) : null;
+	}
+
+	/**
+	 * @since 2.5
+	 *
+	 * @param string $key
+	 * @param string $value
+	 */
+	public function setOption( $key, $value ) {
+
+		if ( !$this->options instanceof Options ) {
+			$this->options = new Options();
+		}
+
+		return $this->options->set( $key, $value );
+	}
+
+	/**
+	 * @since 2.5
+	 *
+	 * @param string $origin
+	 */
+	public function setOrigin( $origin ) {
+		$this->origin = $origin;
 	}
 
 	/**
@@ -92,8 +154,7 @@ class ParserData {
 	 * @since 1.9
 	 */
 	public function disableBackgroundUpdateJobs() {
-		$this->enabledUpdateJobs = false;
-		return $this;
+		$this->isEnabledWithUpdateJob = false;
 	}
 
 	/**
@@ -119,8 +180,8 @@ class ParserData {
 	 *
 	 * @return boolean
 	 */
-	public function isEnabledWithUpdateJobs() {
-		return $this->enabledUpdateJobs;
+	public function isEnabledWithUpdateJob() {
+		return $this->isEnabledWithUpdateJob;
 	}
 
 	/**
@@ -236,7 +297,7 @@ class ParserData {
 		$this->setSemanticDataStateToParserOutputProperty();
 
 		if ( $this->hasExtensionData() ) {
-			return $this->parserOutput->setExtensionData( 'smwdata', $this->semanticData );
+			return $this->parserOutput->setExtensionData( self::DATA_ID, $this->semanticData );
 		}
 
 		$this->parserOutput->mSMWData = $this->semanticData;
@@ -288,8 +349,8 @@ class ParserData {
 
 		$storeUpdater = $applicationFactory->newStoreUpdater( $this->semanticData );
 
-		$storeUpdater->enabledWithUpdateJobs(
-			$this->enabledUpdateJobs
+		$storeUpdater->isEnabledWithUpdateJob(
+			$this->isEnabledWithUpdateJob
 		);
 
 		DeferredCallableUpdate::releasePendingUpdates();
@@ -298,7 +359,10 @@ class ParserData {
 			$storeUpdater->doUpdate();
 		} );
 
-		$deferredCallableUpdate->setOrigin( __METHOD__ . ' :: ' . $this->semanticData->getSubject()->getHash() );
+
+		$deferredCallableUpdate->setOrigin(
+			__METHOD__ . ( $this->origin !== '' ? ' from ' . $this->origin : '' ) . ': ' . $this->semanticData->getSubject()->getHash()
+		);
 
 		$deferredCallableUpdate->enabledDeferredUpdate(
 			$enabledDeferredUpdate
@@ -350,7 +414,7 @@ class ParserData {
 	private function fetchDataFromParserOutput( ParserOutput $parserOutput ) {
 
 		if ( $this->hasExtensionData() ) {
-			$semanticData = $parserOutput->getExtensionData( 'smwdata' );
+			$semanticData = $parserOutput->getExtensionData( self::DATA_ID );
 		} else {
 			$semanticData = isset( $parserOutput->mSMWData ) ? $parserOutput->mSMWData : null;
 		}

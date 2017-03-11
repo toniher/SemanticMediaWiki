@@ -17,7 +17,8 @@
 			"Vengir",
 			"Alan ffm",
 			"WTM",
-			"Devwebtel"
+			"Devwebtel",
+			"Nemo bis"
 		]
 	},
 	"smw-desc": "Poprawia dostępność wiki zarówno dla automatów jak i ludzi ([https://www.semantic-mediawiki.org/wiki/Help:User_manual dokumentacja online])",
@@ -82,6 +83,7 @@
 	"smw-paramdesc-searchlabel": "Treść linku do kolejnych wyników",
 	"smw-paramdesc-named_args": "Nazwa argumentu przekazana do szablonu",
 	"smw-paramdesc-export": "Opcje eksportu",
+	"smw-paramdesc-jsonsyntax": "Składnia JSON, która będzie używana",
 	"smw_iq_disabled": "Niestety, w tym wiki wyłączono możliwość tworzenia zapytań w artykułach.",
 	"smw_iq_moreresults": "&hellip; dalsze wyniki",
 	"smw_parseerror": "Podana wartość jest niezrozumiała.",
@@ -114,7 +116,7 @@
 	"smw_noqueryfeature": "Niektóre elementy zapytania nie są obsługiwane na tej wiki, pominięto część zapytania ($1).",
 	"smw_noconjunctions": "Koniunkcje w zapytaniach nie są obsługiwane na tej wiki, pominięto część zapytania ($1).",
 	"smw_nodisjunctions": "Alternatywy w zapytaniach nie są obsługiwane na tej wiki, pominięto część zapytania ($1).",
-	"smw_querytoolarge": "Następujące warunki zapytania nie mogły zostać uwzględnione ze względu na ograniczenia wiki w wielkości lub głębokości zapytania: $1.",
+	"smw_querytoolarge": "{{PLURAL:$2|Następujący warunek zapytania nie mógł zostać uwzględniony|Następujące warunki zapytania nie mogły zostać uwzględnione}} ze względu na ograniczenia wiki w wielkości lub głębokości zapytania: <code>$1</code>.",
 	"smw_notemplategiven": "Należy podać parametr „template”, aby to zapytanie zadziałało.",
 	"smw_type_header": "Atrybuty typu “$1”",
 	"smw_typearticlecount": "Pokazano $1 {{PLURAL:$1|atrybut używający|atrybuty używające|atrybutów używających}} tego typu.",
@@ -224,6 +226,7 @@
 	"smw_result_results": "Wyniki",
 	"smw_result_noresults": "Niestety, brak wyników.",
 	"smwadmin": "Funkcje administracyjne",
+	"smw-admin-statistics-job-title": "Statystyki zadań",
 	"smw-admin-setupsuccess": "Silnik przestrzeni dyskowej został pomyślnie ustawiony.",
 	"smw_smwadmin_return": "Powrót do $1",
 	"smw_smwadmin_updatestarted": "Uruchomiono nowy proces aktualizacji danych semantycznych.\nWszystkie zapisane dane zostaną uporządkowane oraz naprawione w razie potrzeby.\nMożesz śledzić stan procesu aktualizacji na tej stronie specjalnej.",
@@ -255,10 +258,12 @@
 	"smw-admin-supplementary-settings-title": "Ustawienia konfiguracji",
 	"smw-admin-supplementary-settings-intro": "<b>$1</b> zawiera listę dostępnych ustawień stosowanych w semantycznej MediaWiki",
 	"smw-admin-supplementary-operational-statistics-title": "Statystyki operacyjne",
+	"smw-property-label-similarity-threshold": "Próg:",
+	"smw-property-label-similarity-noresult": "Nie znaleziono wyników dla wybranych opcji.",
 	"smw_adminlinks_datastructure": "Struktura danych",
 	"smw_adminlinks_displayingdata": "Pokaż dane",
 	"smw_adminlinks_inlinequerieshelp": "Pomoc dotycząca wewnętrznych zapytań",
-	"smw-page-indicator-type-info": "{{PLURAL:$1|Użytkownik|System}}",
+	"smw-property-indicator-type-info": "{{PLURAL:$1|Użytkownik|System}}",
 	"smw-createproperty-isproperty": "To jest właściwość typu $1.",
 	"smw-createproperty-allowedvals": "{{PLURAL:$1|Dopuszczalna wartość dla tej własności to|Dopuszczalne wartości dla tej własności to:}}",
 	"smw-paramdesc-category-delim": "Ogranicznik",
@@ -306,7 +311,6 @@
 	"smw-datavalue-import-link": "[[MediaWiki:Smw import $1|Import $1]]",
 	"smw-pa-property-predefined_pval": "[https://www.semantic-mediawiki.org/wiki/Help:Special_property_Allows_value „$1”] jest predefiniowaną właściwością, która może zdefiniować listę dopuszczalnych wartości ograniczających przyporządkowania wartości dla właściwości.",
 	"smw-datavalue-property-restricted-use": "Właściwość „$1” została oznaczona do ograniczonego użytkowania.",
-	"smw-datavalue-property-invalid-name": "Wartość „$1” zawiera nieprawidłowe znaki (np. $2) dla nazwy właściwości.",
 	"smw-datavalue-restricted-use": "Wartość danych „$1” została oznaczona do ograniczonego użytku.",
 	"smw-datavalue-invalid-number": "„$1” nie może być interpretowane jako liczba.",
 	"smw-sp-types-list": "Lista typów danych",
@@ -327,5 +331,6 @@
 	"smw-property-preferred-title-format": "$1 ($2)",
 	"smw-parse": "$1",
 	"smw-clipboard-copy-link": "Kopiuj link do schowka",
+	"smw-data-lookup": "Pobieranie danych...",
 	"smw-no-data-available": "Brak dostępnych danych."
 }

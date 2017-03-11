@@ -73,8 +73,16 @@ class PropertyPageMessageHtmlBuilder {
 			$message .= $this->createEditProtectionMessage( $propertyName );
 		}
 
+		if ( $property->isUserDefined() && wfMessage( 'smw-property-introductory-message-user' )->exists() ) {
+			$message .= $this->createIntroductoryMessage( 'smw-property-introductory-message-user', $propertyName );
+		}
+
+		if ( !$property->isUserDefined() && wfMessage( 'smw-property-introductory-message-special' )->exists() ) {
+			$message .= $this->createIntroductoryMessage( 'smw-property-introductory-message-special', $propertyName );
+		}
+
 		if ( wfMessage( 'smw-property-introductory-message' )->exists() ) {
-			$message .= $this->createIntroductoryMessage( $propertyName );
+			$message .= $this->createIntroductoryMessage( 'smw-property-introductory-message', $propertyName );
 		}
 
 		if ( $property->isUserDefined() && $this->store->getPropertyTableInfoFetcher()->isFixedTableProperty( $property ) ) {
@@ -112,18 +120,25 @@ class PropertyPageMessageHtmlBuilder {
 				'id' => 'smw-property-content-editprotection-message',
 				'class' => 'plainlinks smw-callout smw-callout-warning'
 			),
-			wfMessage( 'smw-pageedit-protection', $GLOBALS['smwgEditProtectionRight'] )->parse()
+			wfMessage( 'smw-edit-protection', $GLOBALS['smwgEditProtectionRight'] )->parse()
 		);
 	}
 
-	private function createIntroductoryMessage( $propertyName ) {
+	private function createIntroductoryMessage( $msgKey, $propertyName ) {
+
+		$message = wfMessage( $msgKey, $propertyName )->parse();
+
+		if ( $message === '' ) {
+			return '';
+		}
+
 		return Html::rawElement(
 			'div',
 			array(
-				'id' => 'smw-property-content-intro-message',
+				'id' => 'smw-property-content-introductory-message',
 				'class' => 'plainlinks smw-callout smw-callout-info'
 			),
-			wfMessage( 'smw-property-introductory-message', $propertyName )->parse()
+			$message
 		);
 	}
 

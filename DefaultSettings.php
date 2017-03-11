@@ -24,8 +24,27 @@ return array(
 	# If needed, you can also change this path in LocalSettings.php after including
 	# this file.
 	##
-	'smwgIP' => dirname( __FILE__ ) . '/',
+	'smwgIP' => __DIR__ . '/',
 	'smwgExtraneousLanguageFileDir' => __DIR__ . '/i18n/extra',
+	'smwgServicesFileDir' => __DIR__ . '/src/Services',
+	##
+
+	###
+	# Content import
+	#
+	# Controls the content import directory and version that is expected to be
+	# imported during the setup process.
+	#
+	# For all legitimate files in `smwgImportFileDir`, the import is initiated
+	# if the `smwgImportReqVersion` compares with the declared version in the file.
+	#
+	# In case `smwgImportReqVersion` is maintained with `false` then the import
+	# is going to be disabled.
+	#
+	# @since 2.5
+	##
+	'smwgImportFileDir' => __DIR__ . '/src/Importer/data',
+	'smwgImportReqVersion' => 1,
 	##
 
 	###
@@ -144,6 +163,18 @@ return array(
 	# @default false === means to use the default as determined by cURL
 	##
 	'smwgSparqlRepositoryConnectorForcedHttpVersion' => false,
+	##
+
+	##
+	# Property replication exemption list
+	#
+	# Listed properties will be exempted from the replication process for a
+	# registered SPARQL repository.
+	#
+	# @since 2.5
+	# @default array
+	##
+	'smwgSparqlReplicationPropertyExemptionList' => array(),
 	##
 
 	###
@@ -885,12 +916,16 @@ return array(
 	# - smwgQueryDurationEnabled to record query duration (the time
 	# between the query result selection and output its)
 	#
+	# - smwgQueryParametersEnabled to record query parameters that are necessary
+	# for allowing to generate a query result using a background job
+	#
 	# False will disabled the query profiler (not recommended)
 	#
 	# @since 1.9
 	##
 	'smwgQueryProfiler' => array(
 		'smwgQueryDurationEnabled' => false,
+		'smwgQueryParametersEnabled' => false
 	),
 	##
 
@@ -1230,8 +1265,8 @@ return array(
 	# @since 2.5
 	##
 	'smwgFulltextSearchPropertyExemptionList' => array(
-		'_ASKFO', '_ASKST', '_IMPO', '_LCODE', '_UNIT', '_CONV',
-		'_TYPE', '_ERRT', '_INST', '_ASK', '_INST', '_SOBJ'
+		'_ASKFO', '_ASKST', '_ASKPA','_IMPO', '_LCODE', '_UNIT', '_CONV',
+		'_TYPE', '_ERRT', '_INST', '_ASK', '_INST', '_SOBJ', '_PVAL', '_PVALI'
 	),
 	##
 
@@ -1392,6 +1427,36 @@ return array(
 	# @default false
 	##
 	'smwgEditProtectionRight' => false,
+	##
+
+	##
+	# Similarity lookup exemption property
+	#
+	# The listed property is used to exclude a property from the similarity
+	# lookup in case the comparing property contains an annotation value with the
+	# exemption property.
+	#
+	# For example, the property `Governance level` may define
+	# [[owl:differentFrom::Governance level of]] which would result in a suppressed
+	# similarity lookup for both `Governance level` and `Governance level of`
+	# property when compared to each other.
+	#
+	# @since 2.5
+	##
+	'smwgSimilarityLookupExemptionProperty' => 'owl:differentFrom',
+	##
+
+	##
+	# Property label invalid characters
+	#
+	# Listed characters are categorized as invalid for a property label and will
+	# result in an error.
+	#
+	# @see #1568, #1638
+	#
+	# @since 2.5
+	##
+	'smwgPropertyInvalidCharacterList' => array( '[', ']' , '|' , '<' , '>', '{', '}', '+', '%' ),
 	##
 
 );

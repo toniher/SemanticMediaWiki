@@ -3,8 +3,8 @@
 namespace SMW;
 
 use Closure;
-use Onoi\CallbackContainer\CallbackLoader;
-use Onoi\CallbackContainer\DeferredCallbackLoader;
+use Onoi\CallbackContainer\ContainerBuilder;
+use Onoi\CallbackContainer\CallbackContainerFactory;
 use Parser;
 use ParserOutput;
 use SMW\Maintenance\MaintenanceFactory;
@@ -15,6 +15,7 @@ use SMW\MediaWiki\TitleCreator;
 use SMW\Query\ProfileAnnotator\QueryProfileAnnotatorFactory;
 use SMWQueryParser as QueryParser;
 use Title;
+use SMW\Services\SharedServicesContainer;
 
 /**
  * Application instances access for internal and external use
@@ -32,15 +33,24 @@ class ApplicationFactory {
 	private static $instance = null;
 
 	/**
-	 * @var CallbackLoader
+	 * @var ContainerBuilder
 	 */
-	private $callbackLoader = null;
+	private $containerBuilder;
+
+	/**
+	 * @var string
+	 */
+	private $servicesFileDir = '';
 
 	/**
 	 * @since 2.0
+	 *
+	 * @param ContainerBuilder|null $containerBuilder
+	 * @param string $servicesFileDir
 	 */
-	public function __construct( CallbackLoader $callbackLoader = null ) {
-		$this->callbackLoader = $callbackLoader;
+	public function __construct( ContainerBuilder $containerBuilder = null, $servicesFileDir = '' ) {
+		$this->containerBuilder = $containerBuilder;
+		$this->servicesFileDir = $servicesFileDir;
 	}
 
 	/**
@@ -59,11 +69,18 @@ class ApplicationFactory {
 	 */
 	public static function getInstance() {
 
-		if ( self::$instance === null ) {
-			self::$instance = new self( self::registerBuilder() );
+		if ( self::$instance !== null ) {
+			return self::$instance;
 		}
 
-		return self::$instance;
+		$servicesFileDir = $GLOBALS['smwgServicesFileDir'];
+
+		$containerBuilder = self::newContainerBuilder(
+			new CallbackContainerFactory(),
+			$servicesFileDir
+		);
+
+		return self::$instance = new self( $containerBuilder, $servicesFileDir );
 	}
 
 	/**
@@ -85,29 +102,37 @@ class ApplicationFactory {
 	 * @param callable|array $objectSignature
 	 */
 	public function registerObject( $objectName, $objectSignature ) {
-		$this->callbackLoader->registerObject( $objectName, $objectSignature );
+		$this->containerBuilder->registerObject( $objectName, $objectSignature );
+	}
+
+	/**
+	 * @since 2.5
+	 *
+	 * @param string $file
+	 */
+	public function registerFromFile( $file ) {
+		$this->containerBuilder->registerFromFile( $file );
 	}
 
 	/**
 	 * @private
 	 *
-	 * @note Services called via this functions are for internal use only and
+	 * @note Services called via this function are for internal use only and
 	 * not to be relied upon for external access.
 	 *
-	 * @since 2.5
 	 *
 	 * @param string $serviceName
 	 *
 	 * @return mixed
 	 */
 	public function singleton( $serviceName ) {
-		return call_user_func_array( array( $this->callbackLoader, 'singleton' ), func_get_args() );
+		return call_user_func_array( array( $this->containerBuilder, 'singleton' ), func_get_args() );
 	}
 
 	/**
 	 * @private
 	 *
-	 * @note Services called via this functions are for internal use only and
+	 * @note Services called via this function are for internal use only and
 	 * not to be relied upon for external access.
 	 *
 	 * @since 2.5
@@ -117,7 +142,7 @@ class ApplicationFactory {
 	 * @return mixed
 	 */
 	public function create( $serviceName ) {
-		return call_user_func_array( array( $this->callbackLoader, 'create' ), func_get_args() );
+		return call_user_func_array( array( $this->containerBuilder, 'create' ), func_get_args() );
 	}
 
 	/**
@@ -135,7 +160,7 @@ class ApplicationFactory {
 	 * @return JobFactory
 	 */
 	public function newJobFactory() {
-		return $this->callbackLoader->load( 'JobFactory' );
+		return $this->containerBuilder->create( 'JobFactory' );
 	}
 
 	/**
@@ -164,7 +189,7 @@ class ApplicationFactory {
 	 * @return CacheFactory
 	 */
 	public function newCacheFactory() {
-		return $this->callbackLoader->load( 'CacheFactory', $this->getSettings()->get( 'smwgCacheType' ) );
+		return $this->containerBuilder->create( 'CacheFactory', $this->getSettings()->get( 'smwgCacheType' ) );
 	}
 
 	/**
@@ -173,7 +198,7 @@ class ApplicationFactory {
 	 * @return CacheFactory
 	 */
 	public function getCacheFactory() {
-		return $this->callbackLoader->singleton( 'CacheFactory', $this->getSettings()->get( 'smwgCacheType' ) );
+		return $this->containerBuilder->singleton( 'CacheFactory', $this->getSettings()->get( 'smwgCacheType' ) );
 	}
 
 	/**
@@ -184,7 +209,7 @@ class ApplicationFactory {
 	 * @return QuerySourceFactory
 	 */
 	public function getQuerySourceFactory( $source = null ) {
-		return $this->callbackLoader->singleton( 'QuerySourceFactory' );
+		return $this->containerBuilder->singleton( 'QuerySourceFactory' );
 	}
 
 	/**
@@ -193,7 +218,7 @@ class ApplicationFactory {
 	 * @return Store
 	 */
 	public function getStore( $store = null ) {
-		return $this->callbackLoader->singleton( 'Store', $store );
+		return $this->containerBuilder->singleton( 'Store', $store );
 	}
 
 	/**
@@ -202,7 +227,7 @@ class ApplicationFactory {
 	 * @return Settings
 	 */
 	public function getSettings() {
-		return $this->callbackLoader->singleton( 'Settings' );
+		return $this->containerBuilder->singleton( 'Settings' );
 	}
 
 	/**
@@ -211,7 +236,7 @@ class ApplicationFactory {
 	 * @return TitleCreator
 	 */
 	public function newTitleCreator() {
-		return $this->callbackLoader->load( 'TitleCreator', $this->newPageCreator() );
+		return $this->containerBuilder->create( 'TitleCreator', $this->newPageCreator() );
 	}
 
 	/**
@@ -220,7 +245,7 @@ class ApplicationFactory {
 	 * @return PageCreator
 	 */
 	public function newPageCreator() {
-		return $this->callbackLoader->load( 'PageCreator' );
+		return $this->containerBuilder->create( 'PageCreator' );
 	}
 
 	/**
@@ -230,7 +255,7 @@ class ApplicationFactory {
 	 */
 	public function newPageUpdater() {
 
-		$pageUpdater = $this->callbackLoader->create(
+		$pageUpdater = $this->containerBuilder->create(
 			'PageUpdater',
 			$this->getStore()->getConnection( 'mw.db' )
 		);
@@ -252,7 +277,7 @@ class ApplicationFactory {
 	 * @return IteratorFactory
 	 */
 	public function getIteratorFactory() {
-		return $this->callbackLoader->singleton( 'IteratorFactory' );
+		return $this->containerBuilder->singleton( 'IteratorFactory' );
 	}
 
 	/**
@@ -270,7 +295,7 @@ class ApplicationFactory {
 	 * @return Cache
 	 */
 	public function getCache( $cacheType = null ) {
-		return $this->callbackLoader->singleton( 'Cache', $cacheType );
+		return $this->containerBuilder->singleton( 'Cache', $cacheType );
 	}
 
 	/**
@@ -282,7 +307,7 @@ class ApplicationFactory {
 
 		$mwCollaboratorFactory = $this->newMwCollaboratorFactory();
 
-		$linksProcessor = $this->callbackLoader->create( 'LinksProcessor' );
+		$linksProcessor = $this->containerBuilder->create( 'LinksProcessor' );
 
 		$linksProcessor->isStrictMode(
 			$this->getSettings()->get( 'smwgEnabledInTextAnnotationParserStrictMode' )
@@ -311,7 +336,7 @@ class ApplicationFactory {
 	 * @return ParserData
 	 */
 	public function newParserData( Title $title, ParserOutput $parserOutput ) {
-		return $this->callbackLoader->load( 'ParserData', $title, $parserOutput );
+		return $this->containerBuilder->create( 'ParserData', $title, $parserOutput );
 	}
 
 	/**
@@ -320,7 +345,7 @@ class ApplicationFactory {
 	 * @return ContentParser
 	 */
 	public function newContentParser( Title $title ) {
-		return $this->callbackLoader->load( 'ContentParser', $title );
+		return $this->containerBuilder->create( 'ContentParser', $title );
 	}
 
 	/**
@@ -349,7 +374,7 @@ class ApplicationFactory {
 	 * @return NamespaceExaminer
 	 */
 	public function getNamespaceExaminer() {
-		return $this->callbackLoader->load( 'NamespaceExaminer' );
+		return $this->containerBuilder->create( 'NamespaceExaminer' );
 	}
 
 	/**
@@ -358,7 +383,7 @@ class ApplicationFactory {
 	 * @return PropertySpecificationLookup
 	 */
 	public function getPropertySpecificationLookup() {
-		return $this->callbackLoader->singleton( 'PropertySpecificationLookup' );
+		return $this->containerBuilder->singleton( 'PropertySpecificationLookup' );
 	}
 
 	/**
@@ -367,7 +392,7 @@ class ApplicationFactory {
 	 * @return PropertyHierarchyLookup
 	 */
 	public function newPropertyHierarchyLookup() {
-		return $this->callbackLoader->load( 'PropertyHierarchyLookup' );
+		return $this->containerBuilder->create( 'PropertyHierarchyLookup' );
 	}
 
 	/**
@@ -376,7 +401,7 @@ class ApplicationFactory {
 	 * @return PropertyLabelFinder
 	 */
 	public function getPropertyLabelFinder() {
-		return $this->callbackLoader->singleton( 'PropertyLabelFinder' );
+		return $this->containerBuilder->singleton( 'PropertyLabelFinder' );
 	}
 
 	/**
@@ -385,7 +410,7 @@ class ApplicationFactory {
 	 * @return CachedPropertyValuesPrefetcher
 	 */
 	public function getCachedPropertyValuesPrefetcher() {
-		return $this->callbackLoader->singleton( 'CachedPropertyValuesPrefetcher' );
+		return $this->containerBuilder->singleton( 'CachedPropertyValuesPrefetcher' );
 	}
 
 	/**
@@ -394,7 +419,7 @@ class ApplicationFactory {
 	 * @return MediaWikiNsContentReader
 	 */
 	public function getMediaWikiNsContentReader() {
-		return $this->callbackLoader->singleton( 'MediaWikiNsContentReader' );
+		return $this->containerBuilder->singleton( 'MediaWikiNsContentReader' );
 	}
 
 	/**
@@ -403,16 +428,16 @@ class ApplicationFactory {
 	 * @return InMemoryPoolCache
 	 */
 	public function getInMemoryPoolCache() {
-		return $this->callbackLoader->singleton( 'InMemoryPoolCache' );
+		return $this->containerBuilder->singleton( 'InMemoryPoolCache' );
 	}
 
 	/**
 	 * @since 2.5
 	 *
-	 * @return \LoadBalancer
+	 * @return \createBalancer
 	 */
 	public function getLoadBalancer() {
-		return $this->callbackLoader->singleton( 'DBLoadBalancer' );
+		return $this->containerBuilder->singleton( 'DBLoadBalancer' );
 	}
 
 	/**
@@ -426,7 +451,7 @@ class ApplicationFactory {
 
 		$store = $this->getStore();
 
-		$deferredCallableUpdate = $this->callbackLoader->create(
+		$deferredCallableUpdate = $this->containerBuilder->create(
 			'DeferredCallableUpdate',
 			$callback,
 			$store->getConnection( 'mw.db' )
@@ -463,7 +488,7 @@ class ApplicationFactory {
 	 * @return DataItemFactory
 	 */
 	public function getDataItemFactory() {
-		return $this->callbackLoader->singleton( 'DataItemFactory' );
+		return $this->containerBuilder->singleton( 'DataItemFactory' );
 	}
 
 	/**
@@ -472,7 +497,7 @@ class ApplicationFactory {
 	 * @return QueryFactory
 	 */
 	public function getQueryFactory() {
-		return $this->callbackLoader->singleton( 'QueryFactory' );
+		return $this->containerBuilder->singleton( 'QueryFactory' );
 	}
 
 	/**
@@ -481,16 +506,25 @@ class ApplicationFactory {
 	 * @return LoggerInterface
 	 */
 	public function getMediaWikiLogger() {
-		return $this->callbackLoader->singleton( 'MediaWikiLogger' );
+		return $this->containerBuilder->singleton( 'MediaWikiLogger' );
 	}
 
-	private static function registerBuilder( CallbackLoader $callbackLoader = null ) {
+	private static function newContainerBuilder( CallbackContainerFactory $callbackContainerFactory, $servicesFileDir ) {
 
-		if ( $callbackLoader === null ) {
-			$callbackLoader = new DeferredCallbackLoader( new SharedCallbackContainer() );
-		}
+		$containerBuilder = $callbackContainerFactory->newCallbackContainerBuilder();
 
-		return $callbackLoader;
+		$containerBuilder->registerCallbackContainer( new SharedServicesContainer() );
+		$containerBuilder->registerFromFile( $servicesFileDir . '/' . 'MediaWikiServices.php' );
+		$containerBuilder->registerFromFile( $servicesFileDir . '/' . 'ImporterServices.php' );
+
+		//	$containerBuilder = $callbackContainerFactory->newLoggableContainerBuilder(
+		//		$containerBuilder,
+		//		$callbackContainerFactory->newBacktraceSniffer( 10 ),
+		//		$callbackContainerFactory->newCallFuncMemorySniffer()
+		//	);
+		//	$containerBuilder->setLogger( $containerBuilder->singleton( 'MediaWikiLogger' ) );
+
+		return $containerBuilder;
 	}
 
 }

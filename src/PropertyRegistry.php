@@ -470,12 +470,13 @@ class PropertyRegistry {
 
 			'_SOBJ'  => array( '__sob', true, false ), // "has subobject"
 			'_ASK'   => array( '__sob', false, false ), // "has query"
-			'_ASKST' => array( '_cod', true, false ), // "has query string"
-			'_ASKFO' => array( '_txt', true, false ), // "has query format"
-			'_ASKSI' => array( '_num', true, false ), // "has query size"
-			'_ASKDE' => array( '_num', true, false ), // "has query depth"
-			'_ASKDU' => array( '_num', true, false ), // "has query duration"
-			'_ASKSC' => array( '_txt', true, false ), // "query source"
+			'_ASKST' => array( '_cod', true, false ), // "Query string"
+			'_ASKFO' => array( '_txt', true, false ), // "Query format"
+			'_ASKSI' => array( '_num', true, false ), // "Query size"
+			'_ASKDE' => array( '_num', true, false ), // "Query depth"
+			'_ASKDU' => array( '_num', true, false ), // "Query duration"
+			'_ASKSC' => array( '_txt', true, false ), // "Query source"
+			'_ASKPA' => array( '_cod', true, false ), // "Query parameters"
 			'_MEDIA' => array( '_txt', true, false ), // "has media type"
 			'_MIME'  => array( '_txt', true, false ), // "has mime type"
 			'_PREC'  => array( '_num', true, true ), // "Display precision of"
@@ -483,6 +484,7 @@ class PropertyRegistry {
 			'_TEXT'  => array( '_txt', true, true ), // "Text"
 			'_PDESC' => array( '_mlt_rec', true, true ), // "Property description"
 			'_PVAP'  => array( '__pvap', true, true ), // "Allows pattern"
+			'_PVALI'  => array( '__pvali', true, true ), // "Allows value list"
 			'_DTITLE' => array( '_txt', false, true ), // "Display title of"
 			'_PVUC'  => array( '__pvuc', true, true ), // Uniqueness constraint
 			'_PEID'  => array( '_eid', true, true ), // External identifier

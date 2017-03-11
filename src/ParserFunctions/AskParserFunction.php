@@ -175,6 +175,12 @@ class AskParserFunction {
 			$contextPage
 		);
 
+		$query->setOption( Query::PROC_CONTEXT, 'AskParserFunction' );
+
+		if ( $this->parserData->getOption( ParserData::NO_QUERY_DEP_TRACE ) ) {
+			$query->setOption( $query::NO_DEP_TRACE, true );
+		}
+
 		$queryHash = $query->getHash();
 
 		$this->circularReferenceGuard->mark( $queryHash );
@@ -220,15 +226,20 @@ class AskParserFunction {
 
 	private function addQueryProfile( $query, $format ) {
 
+		$settings = $this->applicationFactory->getSettings();
+
 		// If the smwgQueryProfiler is marked with FALSE then just don't create a profile.
-		if ( $this->applicationFactory->getSettings()->get( 'smwgQueryProfiler' ) === false ) {
+		if ( ( $queryProfiler = $settings->get( 'smwgQueryProfiler' ) ) === false ) {
 			return;
 		}
 
-		$query->setOption(
-			Query::PROC_QUERY_TIME,
-			$this->applicationFactory->getSettings()->get( 'smwgQueryDurationEnabled' ) ? $query->getOption( Query::PROC_QUERY_TIME ) : 0
-		);
+		if ( !isset( $queryProfiler['smwgQueryDurationEnabled'] ) || $queryProfiler['smwgQueryDurationEnabled'] === false ) {
+			$query->setOption( Query::PROC_QUERY_TIME, 0 );
+		}
+
+		if ( isset( $queryProfiler['smwgQueryParametersEnabled'] ) ) {
+			$query->setOption( Query::OPT_PARAMETERS, $queryProfiler['smwgQueryParametersEnabled'] );
+		}
 
 		$profileAnnotatorFactory = $this->applicationFactory->getQueryFactory()->newProfileAnnotatorFactory();
 

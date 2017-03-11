@@ -1,7 +1,7 @@
 <?php
 
 use SMW\DataValues\ValueFormatters\DataValueFormatter;
-use SMW\Libs\Time\Timezone;
+use SMW\DataValues\Time\Timezone;
 use SMW\Localizer;
 
 /**
@@ -99,6 +99,12 @@ use SMW\Localizer;
  * @ingroup SMWDataValues
  */
 class SMWTimeValue extends SMWDataValue {
+
+	/**
+	 * DV identifier
+	 */
+	const TYPE_ID = '_dat';
+
 	protected $m_dataitem_greg = null;
 	protected $m_dataitem_jul = null;
 
@@ -118,7 +124,7 @@ class SMWTimeValue extends SMWDataValue {
 
 	protected function parseUserValue( $value ) {
 
-		$value = $this->convertDoubleWidth( $value );
+		$value = Localizer::convertDoubleWidth( $value );
 		$this->m_wikivalue = $value;
 
 		if ( $this->m_caption === false ) { // Store the caption now.
@@ -651,7 +657,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * {@inheritDoc}
 	 */
 	public function getShortWikiText( $linker = null ) {
-		return $this->getDataValueFormatter()->format( DataValueFormatter::WIKI_SHORT, $linker );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->format( DataValueFormatter::WIKI_SHORT, $linker );
 	}
 
 	/**
@@ -660,7 +666,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * {@inheritDoc}
 	 */
 	public function getShortHTMLText( $linker = null ) {
-		return $this->getDataValueFormatter()->format( DataValueFormatter::HTML_SHORT, $linker );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->format( DataValueFormatter::HTML_SHORT, $linker );
 	}
 
 	/**
@@ -669,7 +675,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * {@inheritDoc}
 	 */
 	public function getLongWikiText( $linker = null ) {
-		return $this->getDataValueFormatter()->format( DataValueFormatter::WIKI_LONG, $linker );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->format( DataValueFormatter::WIKI_LONG, $linker );
 	}
 
 	/**
@@ -678,7 +684,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * {@inheritDoc}
 	 */
 	public function getLongHTMLText( $linker = null ) {
-		return $this->getDataValueFormatter()->format( DataValueFormatter::HTML_LONG, $linker );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->format( DataValueFormatter::HTML_LONG, $linker );
 	}
 
 	/**
@@ -757,7 +763,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * @return
 	 */
 	public function getTimeString( $default = '00:00:00' ) {
-		return $this->getDataValueFormatter()->getTimeString( $default );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->getTimeString( $default );
 	}
 
 	/**
@@ -777,7 +783,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * @return string
 	 */
 	public function getISO8601Date( $mindefault = true ) {
-		return $this->getDataValueFormatter()->getISO8601Date( $mindefault );
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->getISO8601Date( $mindefault );
 	}
 
 	/**
@@ -786,7 +792,7 @@ class SMWTimeValue extends SMWDataValue {
 	 * @return string
 	 */
 	public function getMediaWikiDate() {
-		return $this->getDataValueFormatter()->getMediaWikiDate();
+		return $this->dataValueServiceFactory->getValueFormatter( $this )->getMediaWikiDate();
 	}
 
 	/**

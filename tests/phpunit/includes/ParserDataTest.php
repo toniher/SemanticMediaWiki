@@ -78,13 +78,13 @@ class ParserDataTest extends \PHPUnit_Framework_TestCase {
 		$instance = new ParserData( $title, $parserOutput );
 
 		$this->assertTrue(
-			$instance->isEnabledWithUpdateJobs()
+			$instance->isEnabledWithUpdateJob()
 		);
 
 		$instance->disableBackgroundUpdateJobs();
 
 		$this->assertFalse(
-			$instance->isEnabledWithUpdateJobs()
+			$instance->isEnabledWithUpdateJob()
 		);
 	}
 
@@ -254,11 +254,11 @@ class ParserDataTest extends \PHPUnit_Framework_TestCase {
 	public function testUpdateStore() {
 
 		$idTable = $this->getMockBuilder( '\stdClass' )
-			->setMethods( array( 'hasIDFor' ) )
+			->setMethods( array( 'exists' ) )
 			->getMock();
 
 		$idTable->expects( $this->any() )
-			->method( 'hasIDFor' )
+			->method( 'exists' )
 			->will( $this->returnValue( true ) );
 
 		$store = $this->getMockBuilder( '\SMW\SQLStore\SQLStore' )
@@ -408,6 +408,30 @@ class ParserDataTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertFalse(
 			$instance->canModifySemanticData()
+		);
+	}
+
+	public function testSetGetOption() {
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title->expects( $this->once() )
+			->method( 'getNamespace' )
+			->will( $this->returnValue( -1 ) );
+
+		$parserOutput = new ParserOutput();
+
+		$instance = new ParserData(
+			$title,
+			$parserOutput
+		);
+
+		$instance->setOption( $instance::NO_QUERY_DEP_TRACE, true );
+
+		$this->assertTrue(
+			$instance->getOption( $instance::NO_QUERY_DEP_TRACE )
 		);
 	}
 
